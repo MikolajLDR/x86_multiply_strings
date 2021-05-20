@@ -53,15 +53,15 @@ char* multiply(char* result_string, char* num1, char* num2)
     }
 
     // remove '0' from sufix
-    int n = result_len-1;
+    int n = result_len;
     while (n>=0)
     {
+        n--;
         if (result_string[n] != '0')
         {
             result_string[n+1] = '\0';
             break;
         }
-        n--;
     }
 
     // revers digits
@@ -84,10 +84,16 @@ char* multiply(char* result_string, char* num1, char* num2)
     return result_string;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-	char* num1 = "12";
-    char* num2 = "13";
+    if (argc < 3)
+	{
+		printf("Not enough arguments.\n"
+               "Run program as \"%s <some alphanumeric text>\"\n", argv[0]);
+		return -1;
+	}
+	char* num1 = argv[1];
+    char* num2 = argv[2];
     int num1_len = strlen(num1);
     int num2_len = strlen(num2);
 
