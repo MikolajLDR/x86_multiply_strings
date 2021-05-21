@@ -17,7 +17,7 @@ char* multiply(char* result_string, char* num1, char* num2)
     result_string[result_len] = '\0';
 
     int index = result_len-1;
-    int index_j;
+    int index_loop;
     int carry;
     int dig1;
     int dig2;
@@ -28,7 +28,7 @@ char* multiply(char* result_string, char* num1, char* num2)
     for (i=len1-1; i>=0; i--)
     {
         carry = 0;
-        index_j = index;
+        index_loop = index;
 
         dig1 = num1[i] - '0';
 
@@ -37,27 +37,25 @@ char* multiply(char* result_string, char* num1, char* num2)
             dig2 = num2[j] - '0';
 
             mul_result = dig1*dig2;
-            mul_result += result_string[index_j];
+            mul_result += result_string[index_loop];
             mul_result += carry;
             mul_result -= '0';
 
             carry = mul_result/10;
 
-            result_string[index_j] = mul_result % 10;
-            result_string[index_j] += '0';
+            result_string[index_loop] = mul_result % 10;
+            result_string[index_loop] += '0';
 
-            index_j--;
+            index_loop--;
         }
-        result_string[index_j] += carry;
+        result_string[index_loop] += carry;
 
         index--;
     }
 
     // removing zero from beginning
-    if (result_string[0] == '0')
-    {
-        result_string++;
-    }
+    if (result_string[0] == '0') result_string++;
+
 
     return result_string;
 }
