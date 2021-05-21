@@ -15,70 +15,48 @@ char* multiply(char* result_string, char* num1, char* num2)
         result_string[i] = '0';
     }
     result_string[result_len] = '\0';
-    
-    // multiply strings
-    int a=0;
-    int index;
+
+    int index = result_len-1;
+    int index_j;
     int carry;
-    int n1;
-    int n2;
-    int sum;
-     
-    for (int i=len1-1; i>=0; i--)
+    int dig1;
+    int dig2;
+    int mul_result;
+    int i;
+    int j;
+    
+    for (i=len1-1; i>=0; i--)
     {
-        index = a;
         carry = 0;
-        n1 = num1[i] - '0';
-       
-        for (int j=len2-1; j>=0; j--)
+        index_j = index;
+
+        dig1 = num1[i] - '0';
+
+        for (j=len2-1; j>=0; j--)
         {
-            n2 = num2[j] - '0';
+            dig2 = num2[j] - '0';
 
-            sum = n1*n2;
-            sum += result_string[index];
-            sum += carry;
-            sum -= '0';
+            mul_result = dig1*dig2;
+            mul_result += result_string[index_j];
+            mul_result += carry;
+            mul_result -= '0';
 
-            carry = sum/10;
+            carry = mul_result/10;
 
-            result_string[index] = sum % 10;
-            result_string[index] += '0';
+            result_string[index_j] = mul_result % 10;
+            result_string[index_j] += '0';
 
-            index++;
+            index_j--;
         }
-        result_string[index] += carry;
+        result_string[index_j] += carry;
 
-        a++;
-        index++;
+        index--;
     }
 
-    // remove '0' from sufix
-    int n = result_len;
-    while (n>=0)
+    // removing zero from beginning
+    if (result_string[0] == '0')
     {
-        n--;
-        if (result_string[n] != '0')
-        {
-            result_string[n+1] = '\0';
-            break;
-        }
-    }
-
-    // revers digits
-    int i = 0;
-    n = strlen(result_string)-1;
-
-    while(i<n)
-    {
-        char n_char = result_string[n];
-        if (n_char != '0')
-        {
-            char ch = result_string[i];
-            result_string[i] = n_char;
-            result_string[n] = ch;
-            i++;
-        }
-        n--;
+        result_string++;
     }
 
     return result_string;
@@ -89,7 +67,13 @@ int main(int argc, char *argv[])
     if (argc < 3)
 	{
 		printf("Not enough arguments.\n"
-               "Run program as \"%s <some alphanumeric text>\"\n", argv[0]);
+               "Run program as \"%s <number, numer>\"\n", argv[0]);
+		return -1;
+	}
+    if (argc > 3)
+	{
+		printf("Too much arguments.\n"
+               "Run program as \"%s <number, numer>\"\n", argv[0]);
 		return -1;
 	}
 	char* num1 = argv[1];
@@ -108,7 +92,7 @@ int main(int argc, char *argv[])
         char result_string[result_len];   
 
 
-        strcpy(result_string, smul(result_string, num1, num2));
+        strcpy(result_string, multiply(result_string, num1, num2));
         puts(result_string);
 
         //int result = smul(result_string, num1, num2);
