@@ -26,6 +26,30 @@ smul:
     add     esp, 4
     mov     [ebp-8], eax                ; [ebp-8] - length of second number
 
+; check if num1 == 0
+is_num1_0:
+    cmp     dword [ebp-4], 1
+    jne     is_num2_0                   ; if len1 != 1 jump to is_num2_0
+    mov     eax, [ebp+12]               ; eax = address of num1
+    movzx   eax, byte [eax]             ; eax = num1[0]
+    cmp     al, '0'
+    jne     is_num2_0                   ; if num1[0] != '0' jump to is_num2_0
+    mov     eax, [ebp+12]               ; return num1 ("0")
+    jmp     the_end
+
+; check if num2 == 0
+is_num2_0:
+    cmp     dword [ebp-8], 1
+    jne     else                        ; if len2 != 1 jump to else
+    mov     eax, [ebp+16]               ; eax = address of num2
+    movzx   eax, byte [eax]             ; eax = num2[0]
+    cmp     al, '0'
+    jne     else                        ; if num2[0] != '0' jump to else
+    mov     eax, [ebp+16]               ; return num2 ("0")
+    jmp     the_end
+
+; if neither numbers are zeros 
+else:
     mov     ebx, [ebp-8]
     add     ebx, [ebp-4]
     mov     [ebp-12], ebx               ; [ebp-12] - length of result string
@@ -143,7 +167,8 @@ for_loop_1:
     ;====EPILOGUE====
 end:
     mov     eax, [ebp+8]
-    
+
+the_end:
     pop     edi
     pop     esi
     pop     ebx

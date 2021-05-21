@@ -7,6 +7,24 @@ char* multiply(char* result_string, char* num1, char* num2)
 {
     int len1 = strlen(num1);
     int len2 = strlen(num2);
+
+    if (len1 == 1)
+    {
+        if (num1[0] == '0')
+        {
+            return "0";
+        }
+    }
+
+    if (len2 == 1)
+    {
+        if (num2[0] == '0')
+        {
+            return "0";
+        }
+    }
+
+    
     int result_len = len1+len2;
     
     // fill string with '0'
