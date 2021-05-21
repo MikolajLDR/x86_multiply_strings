@@ -92,11 +92,8 @@ int main(int argc, char *argv[])
         char result_string[result_len];   
 
 
-        strcpy(result_string, multiply(result_string, num1, num2));
+        strcpy(result_string, smul(result_string, num1, num2));
         puts(result_string);
-
-        //int result = smul(result_string, num1, num2);
-        //printf("%i\n", result);
     }
 
     return 0;
