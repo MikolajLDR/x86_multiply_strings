@@ -23,7 +23,6 @@ char* multiply(char* result_string, char* num1, char* num2)
             return num2;
         }
     }
-
     
     int result_len = len1+len2;
     
@@ -98,8 +97,12 @@ int main(int argc, char *argv[])
     {
         int result_len = num1_len+num2_len;
 
-        char result_string[result_len];   
+        char result_string[result_len];
 
+        //int result = smul(result_string, num1, num2);
+        //printf("%i", result);
+        
+        ///*
         strcpy(result_string, smul(result_string, num1, num2));
         printf("Assembly function: ");
         puts(result_string);
@@ -107,6 +110,7 @@ int main(int argc, char *argv[])
         strcpy(result_string, multiply(result_string, num1, num2));
         printf("C function:        ");
         puts(result_string);
+        //*/
     }
 
     return 0;

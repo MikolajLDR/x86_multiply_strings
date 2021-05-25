@@ -1,28 +1,25 @@
 section .text
 global smul
 smul:
-    ;====PROLOGUE====
 	push    ebp
     mov     ebp, esp
 
-    sub     esp, 48
+    sub     esp, 32
 
     push    ebx
     push    esi
+    push    edi
 
-    ; [ebp+8] - result number
-    ; [ebp+12] - first number
-    ; [ebp+16] - second number
+    ; [ebp+8] - result string
+    ; [ebp+12] - first number string
+    ; [ebp+16] - second number string
 
-    ;====PROGRAM====
-    push    dword [ebp+12]              ; push address of first string to get length
+    mov     eax, [ebp+12]               ; eax = address of first string to get length
     call    strlen                      ; call the function
-    add     esp, 4
-    mov     [ebp-4], eax                ; [ebp-4] - lenght of first number
+    mov     [ebp-4], eax                ; [ebp-4] - length of first number
 
-    push    dword [ebp+16]              ; push address of second string to get length
+    mov     eax, [ebp+16]               ; eax = address of second string to get length
     call    strlen                      ; call the function
-    add     esp, 4
     mov     [ebp-8], eax                ; [ebp-8] - length of second number
 
 ; check if num1 == 0
@@ -59,23 +56,21 @@ else:
                                         ; [ebp-24] - carry
                                         ; [ebp-28] - dig1
                                         ; [ebp-32] - dig2
-                                        ; [ebp-36] - mul_result
-                                        ; [ebp-40] - i
-                                        ; [ebp-44] - j
+                                        ; edi - mul_result
+                                        ; cl - i
+                                        ; ch - j
 
 ; filling result string with '0'
 
-    mov     dword [ebp-48], 0           ; [ebp-48] - fill string with '0' loop iterator
+    mov     cl, 0                       ; cl - fill string with '0' loop iterator
     jmp     fill_loop
 zero:
-    mov     edx, [ebp-48]
     mov     eax, [ebp+8]
-    add     eax, edx
+    add     al, cl
     mov     byte [eax], '0'
-    inc     dword [ebp-48]
+    inc     cl
 fill_loop:
-    mov     eax, [ebp-48]               ; eax - iterator
-    cmp     eax, [ebp-12]               ; string length
+    cmp     cl, [ebp-12]                ; string length
     jl      zero                        ; jump if eax < length 
     mov     edx, [ebp-12]   
     mov     eax, [ebp+8]
@@ -84,77 +79,72 @@ fill_loop:
 
 
 ; multiplying
-
-    mov     eax, [ebp-4]                ; eax = len1
-    dec     eax                         ; eax--
-    mov     [ebp-40], eax               ; i = eax
+    mov     cl, [ebp-4]
+    dec     cl                          ; i = len1-1
     jmp     for_loop_1
 outer_loop:
     mov     dword [ebp-24], 0           ; carry = 0
-    mov     eax, [ebp-16]               ; eax = index
-    mov     [ebp-20], eax               ; index_loop = eax = index
+    mov     ebx, [ebp-16]               ; ebx = index
+    mov     [ebp-20], ebx               ; index_loop = ebx = index
 
     ; dig1 = num1[i] - '0'
-    mov     edx, [ebp-40]               ; edx = i
-    mov     eax, [ebp+12]               ; eax = address of num1
-    add     eax, edx                    ; eax = address of current digit from num1
-    movzx   eax, byte [eax]             ; eax = current digit from num1 in ascii
-    sub     eax, '0'                    ; eax = current digit from num1 in int
-    mov     [ebp-28], eax               ; dig1 = eax
+    mov     ebx, [ebp+12]               ; ebx = address of num1
+    add     bl, cl                      ; ebx = address of current digit from num1
+    movzx   ebx, byte [ebx]             ; ebx = current digit from num1 in ascii
+    sub     ebx, '0'                    ; ebx = current digit from num1 in int
+    mov     al, bl               ; dig1 = ebx
 
-    mov     eax, [ebp-8]                ; eax = len2
-    dec     eax                         ; eax--
-    mov     [ebp-44], eax               ; j = eax
+    mov     ch, [ebp-8]
+    dec     ch                          ; j = len2-1
     jmp     for_loop_2
 inner_loop:
     ; dig2 = num2[j] - '0'
-    mov     edx, [ebp-44]               ; edx = j
-    mov     eax, [ebp+16]               ; eax = address of num2
-    add     eax, edx                    ; eax = address of current digit from num2
-    movzx   eax, byte [eax]             ; eax = current digit from num2 in ascii
-    sub     eax, '0'                    ; eax = current digit from num2 in int
-    mov     [ebp-32], eax               ; dig2 = eax
+    mov     ebx, [ebp+16]               ; ebx = address of num2
+    add     bl, ch                      ; ebx = address of current digit from num2
+    movzx   ebx, byte [ebx]             ; ebx = current digit from num2 in ascii
+    sub     ebx, '0'                    ; ebx = current digit from num2 in int
+    mov     ah, bl               ; dig2 = ebx
     ; mul_result = dig1*dig2
-    mov     eax, [ebp-28]
-    mov     ebx, [ebp-32]
-    mul     ebx
-    mov     [ebp-36], eax
+    mul     ah
+    movzx   edi, ax
     ; mul_result += result_string[index_loop];
     mov     edx, [ebp-20]               ; edx = index_loop
-    mov     eax, [ebp+8]                ; eax = address of result_string 
-    add     eax, edx                    ; eax = address of current digit in result_string
-    mov     esi, eax                    ; esi = eax
-    movzx   eax, byte [eax]             ; eax = result_string[index_loop]
-    add     [ebp-36], eax               ; mul_result += eax
+    mov     ebx, [ebp+8]                ; ebx = address of result_string 
+    add     ebx, edx                    ; ebx = address of current digit in result_string
+    mov     esi, ebx                    ; esi = ebx
+    movzx   ebx, byte [ebx]             ; ebx = result_string[index_loop]
+    add     edi, ebx                    ; mul_result += ebx
     ; mul_result += carry
-    mov     eax, [ebp-24]
-    add     [ebp-36], eax
+    mov     ebx, [ebp-24]
+    add     edi, ebx
     ; mul_result -= '0'
-    sub     byte [ebp-36], '0'
+    sub     edi, '0'
     
-    mov     eax, [ebp-36]
+    mov     eax, edi
     aam
     mov     [ebp-24], ah                ; carry = mul_result/10
     mov     [esi], al                   ; result_string[index_j] = mul_result % 10
+    
+    ;mov     eax, [esi]
     add     dword [esi], '0'            ; result_string[index_j] += '0'
 
     dec     dword [ebp-20]              ; index_loop--
-    dec     dword [ebp-44]              ; j--
+    dec     ch                          ; j--
 for_loop_2:
-    cmp     dword [ebp-44], 0
+    cmp     ch, 0
     jns     inner_loop                  ; if j>=0 jump to inner_loop
     
     ; result_string[index_j] += carry
     mov     edx, [ebp-20]               ; edx = index_loop
     mov     eax, [ebp+8]                ; eax = address of result_string
     add     eax, edx                    ; eax = address of current digit in result_string
-    mov     ecx, [ebp-24]
-    add     [eax], ecx
+    mov     edx, [ebp-24]
+    add     [eax], edx
 
     dec     dword [ebp-16]              ; index--
-    dec     dword [ebp-40]              ; i--
+    dec     cl                          ; i--
 for_loop_1:
-    cmp     dword [ebp-40], 0
+    cmp     cl, 0
     jns     outer_loop                  ; if i>=0 jump to outer_loop
     ; if (result_string[0] == '0') result_string++
     mov     eax, [ebp+8]
@@ -163,11 +153,11 @@ for_loop_1:
     jne     end
     inc     dword [ebp+8]
 
-    ;====EPILOGUE====
 end:
     mov     eax, [ebp+8]
 
 the_end:
+    pop     edi
     pop     esi
     pop     ebx
 
@@ -176,18 +166,16 @@ the_end:
     ret
 
 strlen:
-    push    ebp
-    mov     ebp, esp
 
-    mov     eax, [ebp+8]
+    mov     ebx, eax
 
 lop1:
-    mov     dl, [eax]
-    inc     eax
+    mov     dl, [ebx]
+    inc     ebx
     test    dl, dl
     jnz     lop1
-    dec     eax
-    sub     eax, [ebp+8]
+    dec     ebx
+    sub     ebx, eax
+    mov     eax, ebx
 
-    pop     ebp
     ret 
