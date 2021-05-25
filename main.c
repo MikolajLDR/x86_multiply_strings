@@ -12,7 +12,7 @@ char* multiply(char* result_string, char* num1, char* num2)
     {
         if (num1[0] == '0')
         {
-            return "0";
+            return num1;
         }
     }
 
@@ -20,7 +20,7 @@ char* multiply(char* result_string, char* num1, char* num2)
     {
         if (num2[0] == '0')
         {
-            return "0";
+            return num2;
         }
     }
 
@@ -35,26 +35,19 @@ char* multiply(char* result_string, char* num1, char* num2)
     result_string[result_len] = '\0';
 
     int index = result_len-1;
-    int index_loop;
-    int carry;
-    int dig1;
-    int dig2;
-    int mul_result;
-    int i;
-    int j;
     
-    for (i=len1-1; i>=0; i--)
+    for (int i=len1-1; i>=0; i--)
     {
-        carry = 0;
-        index_loop = index;
+        int carry = 0;
+        int index_loop = index;
 
-        dig1 = num1[i] - '0';
+        int dig1 = num1[i] - '0';
 
-        for (j=len2-1; j>=0; j--)
+        for (int j=len2-1; j>=0; j--)
         {
-            dig2 = num2[j] - '0';
+            int dig2 = num2[j] - '0';
 
-            mul_result = dig1*dig2;
+            int mul_result = dig1*dig2;
             mul_result += result_string[index_loop];
             mul_result += carry;
             mul_result -= '0';
@@ -107,8 +100,12 @@ int main(int argc, char *argv[])
 
         char result_string[result_len];   
 
-
         strcpy(result_string, smul(result_string, num1, num2));
+        printf("Assembly function: ");
+        puts(result_string);
+
+        strcpy(result_string, multiply(result_string, num1, num2));
+        printf("C function:        ");
         puts(result_string);
     }
 

@@ -9,7 +9,6 @@ smul:
 
     push    ebx
     push    esi
-    push    edi
 
     ; [ebp+8] - result number
     ; [ebp+12] - first number
@@ -120,7 +119,7 @@ inner_loop:
     mov     ebx, [ebp-32]
     mul     ebx
     mov     [ebp-36], eax
-    ; mul_result += result_string[index__loop];
+    ; mul_result += result_string[index_loop];
     mov     edx, [ebp-20]               ; edx = index_loop
     mov     eax, [ebp+8]                ; eax = address of result_string 
     add     eax, edx                    ; eax = address of current digit in result_string
@@ -169,7 +168,6 @@ end:
     mov     eax, [ebp+8]
 
 the_end:
-    pop     edi
     pop     esi
     pop     ebx
 
