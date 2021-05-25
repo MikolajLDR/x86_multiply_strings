@@ -1,10 +1,11 @@
 section .text
+extern printf
 global smul
 smul:
 	push    ebp
     mov     ebp, esp
 
-    sub     esp, 32
+    sub     esp, 24
 
     push    ebx
     push    esi
@@ -54,8 +55,8 @@ else:
     dec     dword [ebp-16]
                                         ; [ebp-20] - index_loop
                                         ; [ebp-24] - carry
-                                        ; [ebp-28] - dig1
-                                        ; [ebp-32] - dig2
+                                        ; dl - dig1
+                                        ; bl - dig2
                                         ; edi - mul_result
                                         ; cl - i
                                         ; ch - j
@@ -88,11 +89,11 @@ outer_loop:
     mov     [ebp-20], ebx               ; index_loop = ebx = index
 
     ; dig1 = num1[i] - '0'
-    mov     ebx, [ebp+12]               ; ebx = address of num1
-    add     bl, cl                      ; ebx = address of current digit from num1
-    movzx   ebx, byte [ebx]             ; ebx = current digit from num1 in ascii
-    sub     ebx, '0'                    ; ebx = current digit from num1 in int
-    mov     al, bl               ; dig1 = ebx
+    mov     edx, [ebp+12]               ; ebx = address of num1
+    add     dl, cl                      ; ebx = address of current digit from num1
+    movzx   edx, byte [edx]             ; ebx = current digit from num1 in ascii
+    sub     edx, '0'                    ; ebx = current digit from num1 in int
+                                        ; dl = dig1
 
     mov     ch, [ebp-8]
     dec     ch                          ; j = len2-1
@@ -103,14 +104,15 @@ inner_loop:
     add     bl, ch                      ; ebx = address of current digit from num2
     movzx   ebx, byte [ebx]             ; ebx = current digit from num2 in ascii
     sub     ebx, '0'                    ; ebx = current digit from num2 in int
-    mov     ah, bl               ; dig2 = ebx
+                                        ; bl = dig2
     ; mul_result = dig1*dig2
-    mul     ah
+    mov     al, dl
+    mul     bl
     movzx   edi, ax
     ; mul_result += result_string[index_loop];
-    mov     edx, [ebp-20]               ; edx = index_loop
+    mov     eax, [ebp-20]               ; eax = index_loop
     mov     ebx, [ebp+8]                ; ebx = address of result_string 
-    add     ebx, edx                    ; ebx = address of current digit in result_string
+    add     ebx, eax                    ; ebx = address of current digit in result_string
     mov     esi, ebx                    ; esi = ebx
     movzx   ebx, byte [ebx]             ; ebx = result_string[index_loop]
     add     edi, ebx                    ; mul_result += ebx
@@ -125,11 +127,11 @@ inner_loop:
     mov     [ebp-24], ah                ; carry = mul_result/10
     mov     [esi], al                   ; result_string[index_j] = mul_result % 10
     
-    ;mov     eax, [esi]
     add     dword [esi], '0'            ; result_string[index_j] += '0'
 
     dec     dword [ebp-20]              ; index_loop--
     dec     ch                          ; j--
+
 for_loop_2:
     cmp     ch, 0
     jns     inner_loop                  ; if j>=0 jump to inner_loop
