@@ -38,29 +38,29 @@ char* multiply(char* result_string, char* num1, char* num2)
     for (int i=len1-1; i>=0; i--)
     {
         int carry = 0;
-        int index_loop = index;
 
         int dig1 = num1[i] - '0';
 
         for (int j=len2-1; j>=0; j--)
         {
+            //printf("%i\n", index);
             int dig2 = num2[j] - '0';
 
             int mul_result = dig1*dig2;
-            mul_result += result_string[index_loop];
+            mul_result += result_string[index];
             mul_result += carry;
             mul_result -= '0';
 
             carry = mul_result/10;
 
-            result_string[index_loop] = mul_result % 10;
-            result_string[index_loop] += '0';
+            result_string[index] = mul_result % 10;
+            result_string[index] += '0';
 
-            index_loop--;
+            index--;
         }
-        result_string[index_loop] += carry;
-
-        index--;
+        result_string[index] += carry;
+        index += len2;
+        index -= 1;
     }
 
     // removing zero from beginning
@@ -72,6 +72,7 @@ char* multiply(char* result_string, char* num1, char* num2)
 
 int main(int argc, char *argv[])
 {
+    
     if (argc < 3)
 	{
 		printf("Not enough arguments.\n"
@@ -110,9 +111,9 @@ int main(int argc, char *argv[])
         strcpy(result_string, multiply(result_string, num1, num2));
         printf("C function:        ");
         puts(result_string);
-        //*/
+        //
     }
-
+   
     return 0;
 }
 
