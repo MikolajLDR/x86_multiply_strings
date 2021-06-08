@@ -43,7 +43,6 @@ char* multiply(char* result_string, char* num1, char* num2)
 
         for (int j=len2-1; j>=0; j--)
         {
-            //printf("%i\n", index);
             int dig2 = num2[j] - '0';
 
             int mul_result = dig1*dig2;
@@ -100,20 +99,17 @@ int main(int argc, char *argv[])
 
         char result_string[result_len];
 
-        //int result = smul(result_string, num1, num2);
-        //printf("%i", result);
-        
-        ///*
-        strcpy(result_string, smul(result_string, num1, num2));
-        printf("Assembly function: ");
-        puts(result_string);
-
         strcpy(result_string, multiply(result_string, num1, num2));
         printf("C function:        ");
         puts(result_string);
-        //
+
+        char *result_buf = malloc(strlen(argv[1]) + strlen(argv[2]));
+        char *result = smul(result_buf, argv[1], argv[2]);
+        printf("Assembly function: ");
+        
+        puts(result);
+        free(result_buf);
     }
    
     return 0;
 }
-
