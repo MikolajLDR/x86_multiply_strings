@@ -77,7 +77,7 @@ inner_loop:
     cmp     ebx, [ebp+12]
     jne     outer_loop          ; jump if entire first number was not multiplied
 
-    ; Remove 0 before result
+    ; Remove 0 from result beggining
     mov     eax, [ebp+8]
     mov     dl, [eax]
     test    dl, dl
