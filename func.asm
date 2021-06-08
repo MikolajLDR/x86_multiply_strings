@@ -1,8 +1,8 @@
 ; edx       length of first number
 ; ecx       length of second number
-; ebx       pointer when multiplying
-; edi       second pointer when multiplying
-; esi       pointer for result when multiplying
+; ebx       first number pointer
+; edi       second number pointer
+; esi       result pointer
 
 ; [ebp+8]   address of result string
 ; [ebp+12]  address of first number string
@@ -12,7 +12,6 @@ section .text
     global  smul
 
 smul:
-    ; Prologue
     push    ebp
     mov     ebp, esp
 
@@ -20,93 +19,91 @@ smul:
     push    edi
     push    ebx
 
-    ; Change first number to int and find end
+    ; Change first number to int
     xor     edx, edx
     mov     ebx, [ebp+12]
-first_num_loop:
+first_to_int:
     mov     al, [ebx+edx]
     sub     al, '0'
     xchg    al, [ebx+edx]
     inc     edx
     test    al, al
-    jnz     first_num_loop
-    dec     edx
+    jnz     first_to_int
+    dec     edx                 ; edx = length of first number
 
-    ; Change second number to int and find end
+    ; Change second number to int
     xor     ecx, ecx
     mov     edi, [ebp+16]
-second_num_loop:
-    mov     al, [edi + ecx]
+second_to_int:
+    mov     al, [edi+ecx]
     sub     al, '0'
-    xchg    al, [edi + ecx]
+    xchg    al, [edi+ecx]
     inc     ecx
     test    al, al
-    jnz     second_num_loop
-    dec     ecx
+    jnz     second_to_int
+    dec     ecx                 ; ecx = length of second number
 
-    ; Main muliplication
+    ; Muliply numbers
     xor     eax, eax            ; eax = 0
-    mov     ebx, edx            ; ebx = edx = długość pierwszej liczby
-    push    edx                 ; edx czyli długość pierwszej liczby wrzucam na stack
-    mov     esi, [ebp+8]        ; esi = adres początku wyniku
-    add     esi, ebx            ; esi = adres początku wyniku + długość pierwszej liczby
-    inc     esi                 ; esi++
-    add     ebx, [ebp+12]       ; ebx = adres końca pierwszej liczby
-mul_num_by_dig:
-    dec     ebx                 ; ebx-- 
-    dec     esi                 ; esi-- 
-    mov     dl, [ebx]           ; current digit from first number
-
-    ; Single multiplication
-    add     esi, ecx            ; esi = adres w wyniku
-    mov     edi, ecx            ; edi = ecx = długość drugiej liczby
-    add     edi, [ebp+16]       ; edi = adres końca drugiej liczby
-mul_dig_by_dig:
-    dec     edi
+    mov     ebx, edx            ; ebx = length of first number
+    push    edx
+    mov     esi, [ebp+8]        ; esi = address of result string
+    add     esi, ebx            ; esi = address of result string + length of first number
+    inc     esi
+    add     ebx, [ebp+12]       ; ebx = address of last digit in first number
+outer_loop:
+    add     esi, ecx
     dec     esi
-    mov     al, [edi]           ; current digit from second number
+    dec     ebx                 ; move to next digit in first number
+    mov     dl, [ebx]           ; dl = current digit from first number
+
+    mov     edi, ecx            ; edi = length of second number
+    add     edi, [ebp+16]       ; edi = address of last digit in second number
+inner_loop:
+    dec     esi
+    dec     edi                 ; move to next digit in second number
+    mov     al, [edi]           ; al = current digit from second number
     mul     dl                  ; ax = al * dl
 
-    ; Adjust to decimal digit
     add     al, [esi]
     aam
 
-    ; Save calculated digit and decide what to do next
     add     [esi-1], ah
     mov     [esi], al
+
     cmp     edi, [ebp+16]
-    jne     mul_dig_by_dig      ; jump if entire second number was not multiplied
+    jne     inner_loop          ; jump if entire second number was not multiplied
 
     cmp     ebx, [ebp+12]
-    jne     mul_num_by_dig      ; jump if entire first number was not multiplied
+    jne     outer_loop          ; jump if entire first number was not multiplied
 
-    ; Remove 0 before result if present
+    ; Remove 0 before result
     mov     eax, [ebp+8]
     mov     dl, [eax]
     test    dl, dl
-    jnz     change_to_ascii
+    jnz     finish
     inc     eax
     dec     ecx
-    ; If result begins with 00 it was sth big * 0 and should be 0
+    ; If result begins with 00 then result = 0
     mov     dl, [eax]
     test    dl, dl
-    jnz     change_to_ascii
+    jnz     finish
     dec     eax
     add     byte [eax], '0'
     pop     edx
     jmp     end
 
-    ; Change result to ascii
-change_to_ascii:
+    ; Changing ints in result to ascii
+finish:
     mov     esi, eax
     pop     edx
     add     esi, edx
     add     esi, ecx
-digit_to_ascii:
+change_to_ascii:
     dec     esi
     add     byte [esi], '0'
     cmp     esi, eax
-    jg      digit_to_ascii
+    jg      change_to_ascii
 
 end:
     pop     ebx
